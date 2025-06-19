@@ -1,5 +1,206 @@
 ---
-title: "Untitled"
+title: "A Beautiful Graphic"
+author: Uma
 format: html
+execute:
+  echo: false
+  warning: false
 ---
 
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+```
+
+From Grok 
+```{r}
+ggplot(data = mpg, aes(x = displ, y = hwy, color = class, size = cty)) +
+  geom_point(alpha = 0.7) +
+  scale_color_brewer(palette = "Set2") +
+  labs(
+    title = "Fuel Efficiency by Engine Displacement and Car Class",
+    x = "Engine Displacement (L)",
+    y = "Highway MPG",
+    color = "Car Class",
+    size = "City MPG"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 12),
+    legend.position = "right"
+  )
+```
+
+From Claude
+```{r}
+# Create a beautiful visualization of fuel efficiency across vehicle classes
+mpg %>%
+  # Add a combined efficiency metric
+  mutate(
+    combined_mpg = (cty + hwy) / 2,
+    efficiency_category = case_when(
+      combined_mpg >= 25 ~ "High Efficiency",
+      combined_mpg >= 20 ~ "Medium Efficiency",
+      TRUE ~ "Low Efficiency"
+    ),
+    efficiency_category = factor(efficiency_category, 
+                                levels = c("Low Efficiency", "Medium Efficiency", "High Efficiency"))
+  ) %>%
+  
+  # Create the main plot
+  ggplot(aes(x = displ, y = hwy)) +
+  
+  # Add background points for context
+  geom_point(data = . %>% select(-class), 
+             color = "grey85", alpha = 0.3, size = 1.5) +
+  
+  # Add main points with beautiful styling
+  geom_point(aes(color = efficiency_category, size = cyl), 
+             alpha = 0.8, stroke = 0.5, stroke_color = "white") +
+  
+  # Add smooth trend lines
+  geom_smooth(aes(color = efficiency_category), 
+              method = "loess", se = TRUE, 
+              linewidth = 1.2, alpha = 0.7) +
+  
+  # Facet by vehicle class
+  facet_wrap(~class, ncol = 4, scales = "free") +
+  
+  # Beautiful color palette
+  scale_color_manual(
+    name = "Fuel Efficiency",
+    values = c("Low Efficiency" = "#E31A1C", 
+               "Medium Efficiency" = "#FF7F00", 
+               "High Efficiency" = "#1F78B4"),
+    guide = guide_legend(override.aes = list(size = 4, alpha = 1))
+  ) +
+  
+  # Size scale for cylinders
+  scale_size_continuous(
+    name = "Engine\nCylinders", 
+    range = c(2, 6),
+    breaks = c(4, 6, 8),
+    guide = guide_legend(override.aes = list(alpha = 1))
+  ) +
+  
+  # Clean axis scales
+  scale_x_continuous(
+    name = "Engine Displacement (L)",
+    breaks = seq(1, 7, 1),
+    minor_breaks = seq(1, 7, 0.5)
+  ) +
+  
+  scale_y_continuous(
+    name = "Highway MPG",
+    breaks = seq(10, 45, 5)
+  ) +
+  
+  # Elegant theme
+  theme_minimal() +
+  theme(
+    # Plot background
+    plot.background = element_rect(fill = "#fafafa", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    
+    # Grid styling
+    panel.grid.major = element_line(color = "#f0f0f0", linewidth = 0.6),
+    panel.grid.minor = element_line(color = "#f8f8f8", linewidth = 0.3),
+    
+    # Facet styling
+    strip.background = element_rect(fill = "#e8e8e8", color = NA, linewidth = 0),
+    strip.text = element_text(face = "bold", size = 11, color = "#333333",
+                              margin = margin(t = 8, b = 8)),
+    
+    # Text styling
+    plot.title = element_text(
+      size = 20, face = "bold", 
+      margin = margin(b = 10), 
+      color = "#2c3e50"
+    ),
+    plot.subtitle = element_text(
+      size = 13, color = "#7f8c8d", 
+      margin = margin(b = 25),
+      lineheight = 1.2
+    ),
+    plot.caption = element_text(
+      size = 10, color = "#95a5a6", 
+      margin = margin(t = 20),
+      hjust = 0
+    ),
+    
+    # Axis styling
+    axis.title = element_text(size = 12, face = "bold", color = "#34495e"),
+    axis.text = element_text(size = 10, color = "#7f8c8d"),
+    axis.ticks = element_line(color = "#bdc3c7", linewidth = 0.3),
+    
+    # Legend styling
+    legend.position = "bottom",
+    legend.box = "horizontal",
+    legend.spacing.x = unit(1, "cm"),
+    legend.title = element_text(size = 11, face = "bold", color = "#34495e"),
+    legend.text = element_text(size = 10, color = "#7f8c8d"),
+    legend.key = element_rect(fill = NA, color = NA),
+    legend.background = element_rect(fill = NA, color = NA),
+    
+    # Margins
+    plot.margin = margin(25, 25, 25, 25)
+  ) +
+  
+  # Labels and titles
+  labs(
+    title = "Fuel Efficiency Landscape Across Vehicle Classes",
+    subtitle = "Relationship between engine displacement and highway MPG\nPoint size indicates cylinder count • Trend lines show efficiency patterns by category",
+    x = "Engine Displacement (Liters)",
+    y = "Highway Miles Per Gallon",
+    caption = "Data: EPA fuel economy data for 38 popular car models • Efficiency categories based on combined city/highway MPG"
+  )
+```
+
+From Chatgpt
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "loess", se = FALSE, color = "gray30", linetype = "dashed") +
+  scale_color_brewer(palette = "Dark2") +
+  labs(
+    title = "Fuel Efficiency by Engine Displacement",
+    subtitle = "Highway MPG drops as engine size increases",
+    x = "Engine Displacement (liters)",
+    y = "Highway MPG",
+    color = "Vehicle Class"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "right",
+    panel.grid.minor = element_blank()
+  )
+
+```
+
+From preceptor
+```{r}
+
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) +
+  geom_point(alpha = 0.7) +
+  scale_color_brewer(palette = "Set2") +
+  scale_size_continuous(range = c(2, 8)) +
+  labs(
+    title = "Highway MPG vs Engine Displacement by Vehicle Class",
+    subtitle = "Larger points indicate higher city MPG",
+    x = "Engine Displacement (L)",
+    y = "Highway MPG",
+    color = "Vehicle Class",
+    size = "City MPG"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    legend.position = "right",
+    legend.box = "vertical",
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank()
+  )
+```
